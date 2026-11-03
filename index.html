@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>SurgTAP-3D · Contact-aware surgical motion in 3D</title>
+    <meta name="description" content="A large-scale cross-surgery video dataset with contact-aware 3D motion tracking. 4,549 action clips, 519,642 frames, and 1,376,987 point trajectories.">
+    <meta name="theme-color" content="#ebf0fa">
+    <meta property="og:title" content="SurgTAP-3D">
+    <meta property="og:description" content="From surgical video to contact-aware 4D trajectories.">
+    <meta property="og:image" content="assets/figure-11.webp">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+      .button.resource-button {
+        color: var(--blue);
+        background: #e9edf3;
+        border: 1px solid #cbd4e0;
+        box-shadow: 0 3px 9px #26334818;
+      }
+
+      .button.resource-button:hover {
+        background: #dfe6ef;
+        border-color: #aebdd1;
+        box-shadow: 0 4px 12px #26334824;
+      }
+
+      .button.resource-button:disabled {
+        color: var(--blue);
+        opacity: 1;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#overview">Skip to content</a>
+
+    <!-- Module: Site header and primary navigation -->
+    <header class="header">
+      <a class="brand" href="#"><svg viewbox="0 0 32 32" aria-hidden="true"><path d="M4 24 11 7l10 17 7-17M4 24h17M11 7h17"></path><circle cx="4" cy="24" r="2"></circle><circle cx="11" cy="7" r="2"></circle><circle cx="21" cy="24" r="2"></circle><circle cx="28" cy="7" r="2"></circle></svg>SurgTAP<span>-3D</span></a>
+      <nav aria-label="Main navigation">
+        <a href="#dataset">Dataset</a>
+        <a href="#method">Method</a>
+        <a href="#explore">Tracking</a>
+        <a href="#benchmark">Results</a>
+        <a href="#applications">Applications</a>
+      </nav>
+      <a class="nav-paper" href="" target="_blank" rel="noopener">Read paper <span aria-hidden="true">↗</span></a>
+    </header>
+    <main>
+      <!-- Module: Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid">
+        </div>
+        <div class="wrap hero-inner">
+          <div class="eyebrow light">
+            <span class="dot"></span>
+            SURGICAL TRACKING ANY POINT IN 3D
+          </div>
+          <h1 id="hero-title">SurgTAP<span>-3D</span></h1>
+          <p class="hero-title">A Large-Scale Cross-Surgery Video Dataset<br>with Contact-Aware 3D Motion Tracking</p>
+          <figure class="hero-teaser">
+            <button class="zoom-image" data-image="assets/figure-11.webp" aria-label="Expand SurgTAP-3D teaser"><img src="assets/figure-11.webp" alt="SurgTAP-3D teaser: curate diverse surgery clips, prompt the contact region and active tool, and produce scale-consistent depth, segmentation, camera parameters, and 3D trajectories" fetchpriority="high"><span>Expand ↗</span></button>
+          </figure>
+          <div class="hero-workflow" aria-label="Workflow at a glance">
+            <div>
+              <b>01</b>
+              <span>Curate surgical clips<small>Robotic &amp; manual · Five actions</small></span>
+            </div>
+            <div>
+              <b>02</b>
+              <span>Prompt the interaction<small>Active tool &amp; contact region</small></span>
+            </div>
+            <div>
+              <b>03</b>
+              <span>Refine geometry &amp; motion<small>Dynamic BA &amp; global 4D refinement</small></span>
+            </div>
+            <div>
+              <b>04</b>
+              <span>Export synchronized labels<small>Tracks · Depth · Poses · Masks</small></span>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="" target="_blank" rel="noopener">Paper PDF ↗</a>
+            <button class="button resource-button" type="button" disabled>Code ↗</button>
+            <button class="button resource-button" type="button" disabled>Dataset ↗</button>
+            <a class="button ghost" href="#project-video">Project video ↓</a>
+            <a class="button ghost" href="#dataset">Explore the dataset ↓</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module: Dataset statistics -->
+      <div class="stats wrap" aria-label="Dataset statistics">
+        <div>
+          <strong>520K</strong>
+          <span>video frames</span>
+          <small>519,642 annotated frames</small>
+        </div>
+        <div>
+          <strong>4,549</strong>
+          <span>action clips</span>
+          <small>Robotic &amp; manual surgery</small>
+        </div>
+        <div>
+          <strong>1.4M</strong>
+          <span>point trajectories</span>
+          <small>1,376,987 synchronized tracks</small>
+        </div>
+        <div>
+          <strong>5</strong>
+          <span>unified action classes</span>
+          <small>Across diverse procedures</small>
+        </div>
+      </div>
+
+      <!-- Module: Paper overview and abstract -->
+      <section id="overview" class="section wrap abstract-section">
+        <div class="eyebrow">
+          THE PAPER
+        </div>
+        <h2>Abstract</h2>
+        <div class="abstract-text">
+          <p>Understanding 3D scene dynamics in minimally invasive surgery (MIS) is a fundamental step toward enabling physically intelligent and autonomous surgical systems. However, existing public datasets are largely confined to ex-vivo or simulated environments, offering limited scalability and diversity in real-world clinical scenarios. Moreover, current annotations typically focus on either tissue or instruments alone, overlooking the critical contact dynamics that govern tool–tissue interactions. This gap restricts the development of downstream applications such as augmented reality guidance and autonomous surgery driven by vision-language-action (VLA) models or world models, which demand large-scale, high-quality 3D supervision.</p>
+          <p>In this work, we construct SurgTAP-3D, a large-scale in-vivo pseudo-3D surgical motion tracking dataset and benchmark, comprising 520K frames, 4,549 action clips, and 1.4M 2D/3D point trajectories from diverse robotic and manual procedures under unified action categories. To make such annotation scalable, we design the first unified framework for Surgical 3D Point Tracking that converts uncalibrated monocular surgical videos into structured 4D annotations through contact-region prompting, active-tool segmentation, dynamic bundle adjustment, and global 4D refinement. This pipeline adapts foundation priors to surgical videos and produces temporally consistent trajectories, pseudo-scale geometry, camera poses, and instrument masks. The dataset captures realistic challenges inherent to surgical environments, including occlusions, smoke, bleeding, and rapid instrument motion.</p>
+          <p>Furthermore, we establish a comprehensive benchmark to evaluate 3D point tracking performance across the SurgPose, SurgT, and STIR datasets, covering both instrument and tissue tracking scenarios. We also demonstrate downstream applications such as instrument displacement estimation, deformable surface reconstruction, and fine-tuning foundation models, highlighting the practical utility of our dataset and framework. Extensive experiments and analysis show the strong robustness and effectiveness of our dataset and annotation framework, for 3D surgical point tracking, reconstruction applications, and surgical action understanding, addressing an important limitation in real-world 3D surgical motion data.</p>
+        </div>
+      </section>
+
+      <!-- Module: Full project video -->
+      <section id="project-video" class="section project-video-section" style="padding-block:clamp(30px,4vw,42px)">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">PROJECT VIDEO</div>
+              <h2>Demo</h2>
+            </div>
+          </div>
+          <!-- <details class="extended-video"> -->
+            <!-- <summary>Full project video <span>1 min 47 s · Tracking, comparisons, and applications</span></summary> -->
+            <div class="large-video">
+              <video controls playsinline preload="none" poster="assets/project-video.jpg" aria-label="Full SurgTAP-3D project presentation"><source src="assets/project-video.mp4" type="video/mp4"></source></video>
+            </div>
+            <div class="video-chapters" aria-label="Video chapters">
+              <button data-seek="0">00:00 · Overview</button>
+              <button data-seek="5">00:05 · Action tracking</button>
+              <button data-seek="51">00:51 · Comparisons</button>
+              <button data-seek="75">01:15 · Reconstruction</button>
+              <button data-seek="96">01:36 · Displacement</button>
+            </div>
+          <!-- </details> -->
+        </div>
+      </section>
+
+      <!-- Module: Dataset contents and source collections -->
+      <section id="dataset" class="section wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">
+              DATASET
+            </div>
+            <h2>Dataset</h2>
+          </div>
+          <p>In-vivo surgical video across robotic and manual procedures, organized into five action classes.</p>
+        </div>
+        <div class="clip-specs compact-specs">
+          <div>
+            <b>20–300</b>
+            <span>frames per retained clip</span>
+          </div>
+          <div>
+            <b>5–30 s</b>
+            <span>action-centered sequences</span>
+          </div>
+        </div>
+        <div class="dataset-layout">
+          <div class="annotation-list">
+            <h3>Inside each clip</h3>
+            <div>
+              <span>01</span>
+              <p><b>2D &amp; 3D point trajectories</b><small>Synchronized instrument and tissue motion</small></p>
+            </div>
+            <div>
+              <span>02</span>
+              <p><b>Depth &amp; scene geometry</b><small>Temporally consistent, pseudo-scale reconstruction</small></p>
+            </div>
+            <div>
+              <span>03</span>
+              <p><b>Camera intrinsics &amp; poses</b><small>Geometry in camera and global coordinates</small></p>
+            </div>
+            <div>
+              <span>04</span>
+              <p><b>Active-tool segmentation</b><small>Instrument masks and contact-region prompts</small></p>
+            </div>
+            <div>
+              <span>05</span>
+              <p><b>Confidence &amp; visibility</b><small>Indicators for filtering trajectories downstream</small></p>
+            </div>
+          </div>
+          <div class="source-panel">
+            <div class="source-head">
+              <h3>Source collections</h3>
+              <label class="sr-only" for="source-filter">Surgical modality</label>
+              <select id="source-filter"><option value="all">All modalities</option><option value="Robotic">Robotic surgery</option><option value="Manual">Manual surgery</option></select>
+            </div>
+            <div class="table-scroll">
+              <table class="source-table">
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Setup</th>
+                    <th>Clips</th>
+                    <th>Frames</th>
+                  </tr>
+                </thead>
+                <tbody id="sources">
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="2" id="source-total-label">Total</th>
+                    <td id="source-clips">4,549</td>
+                    <td id="source-frames">519,642</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <p class="small muted">Source counts from Table II; the two HEICO subsets are grouped.</p>
+          </div>
+        </div>
+        <div class="distribution">
+          <div>
+            <div class="eyebrow">
+              DIVERSITY &amp; COVERAGE
+            </div>
+            <h3>Dataset distributions</h3>
+            <p>Action classes, instruments, procedures, and trajectory statistics.</p>
+          </div>
+          <button class="zoom-image" data-image="assets/figure-34.webp" aria-label="Expand dataset distributions"><img src="assets/figure-34.webp" alt="Dataset distributions of actions, instrument categories, surgery types, and clip statistics" loading="lazy"><span>Expand ↗</span></button>
+        </div>
+        <div class="dataset-analysis">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">
+                MOTION & INSTRUMENT ANALYSIS
+              </div>
+              <h3>Motion patterns &amp; instrument–action relationships</h3>
+            </div>
+            <p>Aligned 3D trajectories, PCA, and instrument distributions.<br>under the unified five-action taxonomy.</p>
+          </div>
+          <div class="analysis-grid">
+            <figure>
+              <button class="zoom-image" data-image="assets/figure-35.webp" aria-label="Expand 3D motion analysis"><img src="assets/figure-35.webp" alt="Aligned 3D motion patterns and PCA visualization of five surgical action classes" loading="lazy"><span>Expand ↗</span></button>
+              <figcaption>
+                <b>Action-conditioned 3D motion.</b>
+                Aligned trajectories and PCA visualize the motion patterns of the five surgical actions.
+              </figcaption>
+            </figure>
+            <figure>
+              <button class="zoom-image" data-image="assets/figure-36.webp" aria-label="Expand instrument-action analysis"><img src="assets/figure-36.webp" alt="Distribution of instruments across surgical action classes with example instruments" loading="lazy"><span>Expand ↗</span></button>
+              <figcaption>
+                <b>Instrument–action relationships.</b>
+                Tool distributions provide complementary context for understanding surgical actions.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module: Interactive tracking demos -->
+      <section id="explore" class="section explorer">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">
+                TRACKING DEMOS
+              </div>
+              <h2>Five actions in 2D and 3D</h2>
+            </div>
+            <p>Switch between surgical actions and view their synchronized trajectories.<br>Each view follows the same surgical interaction.</p>
+          </div>
+          <div class="action-tabs" role="tablist" aria-label="Surgical actions">
+            <button role="tab" aria-selected="true" data-action="0" id="tab-0" aria-controls="action-panel">Vessel clipping</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-action="1" id="tab-1" aria-controls="action-panel">Dissection</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-action="2" id="tab-2" aria-controls="action-panel">Coagulation</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-action="3" id="tab-3" aria-controls="action-panel">Needle grasping</button>
+            <button role="tab" aria-selected="false" tabindex="-1" data-action="4" id="tab-4" aria-controls="action-panel">Tissue retraction</button>
+          </div>
+          <div id="action-panel" class="explore-panel" role="tabpanel" aria-labelledby="tab-0">
+            <div class="explore-toolbar">
+              <div>
+                <span class="mini-dot"></span>
+                <strong id="action-name">Vessel clipping</strong>
+                <span class="toolbar-note"> / Synchronized tracking</span>
+              </div>
+              <div class="example-switch" aria-label="Choose example">
+                <button class="active" data-example="0" aria-pressed="true">Example 01</button>
+                <button data-example="1" aria-pressed="false">Example 02</button>
+              </div>
+            </div>
+            <video id="action-video" controls muted loop playsinline preload="none" poster="assets/action-9.jpg" aria-label="Vessel clipping: synchronized 2D and 3D tracking"><source src="assets/action-9.mp4" type="video/mp4"></source></video>
+            <div class="view-labels dark">
+              <span><b>01</b> 2D tracking</span>
+              <span><b>02</b> 3D · Camera view</span>
+              <span><b>03</b> 3D · Global view</span>
+            </div>
+          </div>
+          <div class="explore-caption">
+            <p id="action-description">Track the tool–tissue interaction during vessel clipping in image, camera, and world coordinates.</p>
+            <!-- <span>Color encodes tracked points</span> -->
+          </div>
+          <p class="muted small">These visualizations show reconstructed pseudo-3D motion from surgical videos.</p>
+          <!-- <details class="supplement"> -->
+            <summary>Qualitative results across action classes</summary>
+            <div class="figure-shell qualitative">
+              <button class="zoom-image" data-image="assets/figure-37.webp" aria-label="Expand qualitative tracking results"><img src="assets/figure-37.webp" alt="Qualitative results across five surgical actions showing 2D tracking, 3D tracking, and contact regions" loading="lazy"><span>Expand ↗</span></button>
+            </div>
+          <!-- </details> -->
+        </div>
+      </section>
+
+      <!-- Module: Annotation method and refinement -->
+      <section id="method" class="section method">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">
+                METHOD
+              </div>
+              <h2>Annotation pipeline</h2>
+            </div>
+            <p>Contact prompts and foundation priors, followed by geometric and temporal refinement.<br>Geometric refinement provides consistency.</p>
+          </div>
+          <div class="figure-shell">
+            <button class="zoom-image" data-image="assets/figure-17.webp" aria-label="Expand annotation pipeline"><img src="assets/figure-17.webp" alt="Detailed SurgTAP-3D annotation pipeline with initialization, dynamic bundle adjustment, segmentation, and global 4D refinement" loading="lazy"><span>Expand ↗</span></button>
+          </div>
+          <div class="refinement-details">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">
+                  GLOBAL 4D REFINEMENT
+                </div>
+                <h3>Global 4D refinement</h3>
+              </div>
+              <p>Four complementary constraints refine geometry and motion.<br>specular highlights, blur, and articulation.</p>
+            </div>
+            <div class="constraint-grid">
+              <article>
+                <span>SURFACE CONSTRAINT</span>
+                <h3>Stay on the instrument</h3>
+                <p>Keep tracked points on the segmented instrument surface.</p>
+              </article>
+              <article>
+                <span>ARTICULATION-AWARE ARAP</span>
+                <h3>Respect local rigidity</h3>
+                <p>Preserve rigid shaft motion while allowing articulated joints to move.</p>
+              </article>
+              <article>
+                <span>FLOW CONSISTENCY</span>
+                <h3>Agree across observations</h3>
+                <p>Refine depth and 2D trajectories through flow consistency.</p>
+              </article>
+              <article>
+                <span>TEMPORAL SMOOTHNESS</span>
+                <h3>Reduce unstable motion</h3>
+                <p>Regularize temporal acceleration to reduce unstable motion.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module: Tracker video comparisons -->
+      <section id="comparisons" class="section wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">
+              COMPARISONS
+            </div>
+            <h2>Tracker comparisons</h2>
+          </div>
+          <p>Qualitative 2D tracking comparison across representative surgical scenes.<br>Additional tissue and instrument sequences are shown below.</p>
+        </div>
+        <figure class="figure-shell">
+          <button class="zoom-image" data-image="assets/comparison_2dtrack.png" aria-label="Expand qualitative 2D tracking comparison"><img src="assets/comparison_2dtrack.png" alt="Qualitative comparison of 2D surgical point tracking methods" loading="lazy"><span>Expand ↗</span></button>
+        </figure>
+        <div class="comparison-excerpts" style="grid-template-columns:1fr">
+          <figure>
+            <video controls muted loop playsinline preload="none" poster="assets/comparison-tissue.jpg" aria-label="Four-method tissue tracking comparison from the project presentation"><source src="assets/comparison-tissue.mp4" type="video/mp4"></source></video>
+            <figcaption>
+              Tissue interaction · AllTracker, DELTAv2, SpatialTrackerv2, and SurgTAP-3D
+            </figcaption>
+          </figure>
+          <figure>
+            <video controls muted loop playsinline preload="none" poster="assets/comparison-instrument.jpg" aria-label="Four-method instrument tracking comparison from the project presentation"><source src="assets/comparison-instrument.mp4" type="video/mp4"></source></video>
+            <figcaption>
+              Instrument motion · Four-method comparison from the project presentation
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- Module: Tracking benchmark and result analysis -->
+      <section id="benchmark" class="section wrap">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">
+              RESULTS
+            </div>
+            <h2>Tracking benchmark</h2>
+          </div>
+          <p>Tissue and instrument tracking on SurgT, SurgPose, and STIR.<br>SurgT, SurgPose, and STIR.</p>
+        </div>
+        <div class="benchmark-card">
+          <div class="benchmark-toolbar">
+            <div class="segmented" aria-label="Tracking dimension">
+              <button class="active" data-dimension="3D" aria-pressed="true">3D tracking</button>
+              <button data-dimension="2D" aria-pressed="false">2D tracking</button>
+            </div>
+            <label for="benchmark-dataset">Evaluation set <select id="benchmark-dataset"><option value="Average">Average</option><option value="SurgT">SurgT · Tissue</option><option value="SurgPose">SurgPose · Instruments</option><option value="STIR">STIR · Tissue</option></select></label>
+          </div>
+          <div class="table-scroll">
+            <table class="benchmark-table">
+              <caption id="benchmark-caption">
+                3D tracking · Average across SurgT, SurgPose, and STIR
+              </caption>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th id="aj-label">AJ 3D ↑</th>
+                  <th id="apd-label">APD 3D ↑</th>
+                  <th>OA ↑</th>
+                </tr>
+              </thead>
+              <tbody id="results">
+              </tbody>
+            </table>
+          </div>
+          <div class="metric-guide">
+            <p><b>AJ</b> Average Jaccard<br><span>Tracking accuracy with visibility</span></p>
+            <p><b>APD</b> Average Points within Distance<br><span>Point localization accuracy</span></p>
+            <p><b>OA</b> Occlusion Accuracy<br><span>Visibility prediction accuracy</span></p>
+          </div>
+        </div>
+        <p class="small muted">Selected results from Table IV, in %. 3D evaluation uses stereo-derived reference trajectories; protocols and full comparisons are in the paper.</p>
+        <div class="quality-row">
+          <div>
+            <div class="eyebrow">
+              ANNOTATION QUALITY
+            </div>
+            <h3>Annotation quality</h3>
+            <p>Mean consistency indicators across the five action classes.</p>
+            <p class="small muted">These indicators assess pseudo-annotation consistency, rather than absolute 3D accuracy.</p>
+          </div>
+          <div class="quality-stats">
+            <div>
+              <b>88.41<span>%</span></b>
+              <span>Track survival · SR</span>
+            </div>
+            <div>
+              <b>95.98<span>%</span></b>
+              <span>Mask consistency · IMC</span>
+            </div>
+            <div>
+              <b>98.33<span>%</span></b>
+              <span>Tracking confidence · TCR</span>
+            </div>
+            <div>
+              <b>94.08<span>%</span></b>
+              <span>Temporal smoothness · TSR</span>
+            </div>
+          </div>
+        </div>
+        <div class="geometry-results">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">
+                DEPTH & CAMERA POSE
+              </div>
+              <h3>Depth &amp; camera pose</h3>
+            </div>
+            <p>Geometry evaluation on surgical benchmarks.<br>with depth and pose estimation experiments.</p>
+          </div>
+          <div class="analysis-grid">
+            <figure>
+              <button class="zoom-image" data-image="assets/figure-42.webp" aria-label="Expand depth estimation results"><img src="assets/figure-42.webp" alt="Depth estimation quantitative results on SCARED and Hamlyn from the presentation" loading="lazy"><span>Expand ↗</span></button>
+              <figcaption>
+                <b>Monocular depth estimation.</b>
+                Comparison on SCARED and Hamlyn.
+              </figcaption>
+            </figure>
+            <figure>
+              <button class="zoom-image" data-image="assets/figure-43.webp" aria-label="Expand camera pose results"><img src="assets/figure-43.webp" alt="Camera pose estimation comparison: ATE, rotational RPE, and translational RPE" loading="lazy"><span>Expand ↗</span></button>
+              <figcaption>
+                <b>Camera pose estimation.</b>
+                Absolute and relative trajectory errors.
+              </figcaption>
+            </figure>
+          </div>
+          <!-- <details class="full-results">
+            <summary>View the complete tracking result tables</summary>
+            <div class="analysis-grid">
+              <figure>
+                <button class="zoom-image" data-image="assets/figure-40.webp" aria-label="Expand complete 2D tracking results"><img src="assets/figure-40.webp" alt="Complete 2D tracking results across SurgT, SurgPose, and STIR" loading="lazy"><span>Expand ↗</span></button>
+                <figcaption>
+                  2D tracking comparison
+                </figcaption>
+              </figure>
+              <figure>
+                <button class="zoom-image" data-image="assets/figure-41.webp" aria-label="Expand complete 3D tracking results"><img src="assets/figure-41.webp" alt="Complete 3D tracking results across SurgT, SurgPose, and STIR" loading="lazy"><span>Expand ↗</span></button>
+                <figcaption>
+                  3D tracking comparison
+                </figcaption>
+              </figure>
+            </div>
+            <p class="small muted">Slide tables are shown here; the interactive table uses the manuscript results.</p>
+          </details> -->
+        </div>
+      </section>
+
+      <!-- Module: Downstream applications -->
+      <section id="applications" class="section applications">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">
+                APPLICATIONS
+              </div>
+              <h2>Applications</h2>
+            </div>
+            <p>Reconstruction, instrument displacement, and tracker fine-tuning.<br>useful signals for downstream tasks.</p>
+          </div>
+          <div class="analysis-grid" style="grid-template-columns:1fr">
+            <figure>
+              <button class="zoom-image" data-image="assets/figure-70.webp" aria-label="Expand instrument displacement figure"><img src="assets/figure-70.webp" alt="Instrument displacement estimation using reconstructed geometry and trajectories" loading="lazy" style="max-height:none"><span>Expand ↗</span></button>
+              <figcaption>
+                Instrument displacement estimation
+              </figcaption>
+            </figure>
+            <figure>
+              <button class="zoom-image" data-image="assets/figure-72.webp" aria-label="Expand reconstruction figure"><img src="assets/figure-72.webp" alt="Deformable reconstruction and rendering comparisons" loading="lazy" style="max-height:none"><span>Expand ↗</span></button>
+              <figcaption>
+                Deformable reconstruction and rendering
+              </figcaption>
+            </figure>
+          </div>
+          <div class="finetune-results">
+            <div>
+              <div class="eyebrow">
+                MODEL FINE-TUNING
+              </div>
+              <h3>Tracker fine-tuning</h3>
+              <p>Training on SurgTAP-3D improves 2D tracking on SurgT and SurgPose.</p>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <caption>
+                  Fine-tuning results · Table XI of the manuscript
+                </caption>
+                <thead>
+                  <tr>
+                    <th rowspan="2">Model / setting</th>
+                    <th colspan="2">SurgT</th>
+                    <th colspan="2">SurgPose</th>
+                  </tr>
+                  <tr>
+                    <th>AJ 2D ↑</th>
+                    <th>APD 2D ↑</th>
+                    <th>AJ 2D ↑</th>
+                    <th>APD 2D ↑</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>CoTrackerv3</td>
+                    <td>73.32</td>
+                    <td>79.02</td>
+                    <td>49.40</td>
+                    <td>61.84</td>
+                  </tr>
+                  <tr class="improved">
+                    <td>CoTrackerv3 + fine-tuning</td>
+                    <td>74.14</td>
+                    <td>80.25</td>
+                    <td>50.99</td>
+                    <td>62.53</td>
+                  </tr>
+                  <tr>
+                    <td>DELTAv2</td>
+                    <td>73.75</td>
+                    <td>79.21</td>
+                    <td>51.20</td>
+                    <td>61.97</td>
+                  </tr>
+                  <tr class="improved">
+                    <td>DELTAv2 + fine-tuning</td>
+                    <td>74.57</td>
+                    <td>80.11</td>
+                    <td>52.75</td>
+                    <td>62.86</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module: Paper resources and FAQ -->
+      <section class="section wrap resources" id="resources">
+        <div>
+          <div class="eyebrow">
+            RESOURCES
+          </div>
+          <h2>Paper &amp; resources</h2>
+          <p>Dataset curation, annotation methods, and evaluation protocols are detailed in the paper.</p>
+          <a class="button primary" href="" target="_blank" rel="noopener">Read the manuscript ↗</a>
+          <div class="release-note">
+            <span class="mini-dot"></span>
+            <p><b>Dataset &amp; code</b><br>Release links will be added when available.</p>
+          </div>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>What does “contact-aware” mean?</summary>
+            <p>Visible tool–tissue interaction regions are marked and used to initialize trajectories. This refers to visual interaction annotations; it does not imply force sensing or a contact-physics model.</p>
+          </details>
+          <details>
+            <summary>Are the 3D annotations ground truth?</summary>
+            <p>The dataset provides reconstructed pseudo-3D trajectories and pseudo-scale geometry from monocular videos. Confidence and visibility indicators help identify trajectories suitable for downstream use.</p>
+          </details>
+          <details>
+            <summary>Which visual conditions remain challenging?</summary>
+            <p>Long instrument disappearance, large occlusion, and fast tool motion can produce drift or unstable tracks. The paper includes analysis of challenging cases, including smoke and bleeding.</p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <!-- Module: Site footer -->
+    <footer>
+      <div class="wrap">
+        <a class="brand" href="#">SurgTAP<span>-3D</span></a>
+        <p>A large-scale cross-surgery video dataset<br>with contact-aware 3D motion tracking.</p>
+        <a href="#">Back to top ↑</a>
+      </div>
+    </footer>
+
+    <!-- Shared UI: Expanded image dialog -->
+    <dialog id="image-dialog">
+      <button class="dialog-close" aria-label="Close image">×</button>
+      <img id="expanded-image" src="assets/figure-11.webp" alt="Expanded research figure">
+    </dialog>
+    <script src="script.js"></script>
+  </body>
+</html>
