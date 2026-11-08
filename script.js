@@ -3,15 +3,44 @@ const actions=[{name:'Vessel clipping',videos:[9,10],description:'Track the tool
 let actionIndex=0,exampleIndex=0;const actionVideo=document.querySelector('#action-video');
 function updateAction(play=true){const action=actions[actionIndex],n=action.videos[exampleIndex];actionVideo.pause();actionVideo.poster=`assets/action-${n}.jpg`;actionVideo.src=`assets/action-${n}.mp4`;actionVideo.setAttribute('aria-label',`${action.name}: synchronized 2D and 3D tracking`);actionVideo.load();document.querySelector('#action-name').textContent=action.name;document.querySelector('#action-description').textContent=action.description;document.querySelector('#action-panel').setAttribute('aria-labelledby',`tab-${actionIndex}`);document.querySelectorAll('[data-action]').forEach(b=>{const selected=+b.dataset.action===actionIndex;b.setAttribute('aria-selected',selected);b.tabIndex=selected?0:-1});document.querySelectorAll('[data-example]').forEach(b=>{const selected=+b.dataset.example===exampleIndex;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',selected)});if(play&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)actionVideo.play().catch(()=>{})}
 document.querySelectorAll('[data-action]').forEach(b=>{b.addEventListener('click',()=>{actionIndex=+b.dataset.action;exampleIndex=0;updateAction()});b.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();actionIndex=e.key==='Home'?0:e.key==='End'?4:(actionIndex+(e.key==='ArrowRight'?1:4))%5;exampleIndex=0;updateAction();document.querySelector(`#tab-${actionIndex}`).focus()})});document.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{exampleIndex=+b.dataset.example;updateAction()}));
-const sources=[['GraSP','Robotic',795,109939],['SAR-RARP50','Robotic',741,62822],['SLAM','Manual',203,24609],['SurgicalAction160','Manual',26,2194],['AutoLaparo','Manual',43,4684],['HEICO subsets','Manual',62,6838],['CholecT50','Manual',2031,234894],['MultiBypass140','Manual',648,73662]];
-function renderSources(){const filter=document.querySelector('#source-filter').value;const rows=sources.filter(s=>filter==='all'||s[1]===filter);document.querySelector('#sources').innerHTML=rows.map(s=>`<tr><td>${s[0]}</td><td><span class="setup">${s[1]}</span></td><td>${s[2].toLocaleString('en-US')}</td><td>${s[3].toLocaleString('en-US')}</td></tr>`).join('');document.querySelector('#source-clips').textContent=rows.reduce((a,s)=>a+s[2],0).toLocaleString('en-US');document.querySelector('#source-frames').textContent=rows.reduce((a,s)=>a+s[3],0).toLocaleString('en-US');document.querySelector('#source-total-label').textContent=filter==='all'?'Total':filter+' total'}document.querySelector('#source-filter').addEventListener('change',renderSources);renderSources();
+// Dataset distribution transcribed from Table II in the latest LaTeX source.
+// Columns: dataset, modality, surgery, clips, frames, reported average frames.
+const sources = [
+  ['GraSP', 'Robotic', 'Prostatectomy', 795, 109939, 138],
+  ['SAR-RARP50', 'Robotic', 'Prostatectomy', 741, 62822, 85],
+  ['SLAM', 'Manual', 'Multiple procedures', 203, 24609, 121],
+  ['SurgicalActions160', 'Manual', 'Gynecology', 26, 2194, 84],
+  ['AutoLaparo', 'Manual', 'Hysterectomy', 43, 4684, 109],
+  ['heicoProctocolectomy', 'Manual', 'Proctocolectomy', 39, 4538, 116],
+  ['heicoRectalResection', 'Manual', 'Rectal resection', 23, 2300, 100],
+  ['CholecT50', 'Manual', 'Cholecystectomy', 2031, 234894, 116],
+  ['MultiBypass140', 'Manual', 'Gastric bypass', 648, 73662, 114]
+];
+function renderSources() {
+  const filter = document.querySelector('#source-filter').value;
+  const rows = sources.filter(s => filter === 'all' || s[1] === filter);
+  document.querySelector('#sources').innerHTML = rows.map(s => `
+    <tr>
+      <td><span class="setup">${s[1]} surgery</span></td>
+      <th scope="row">${s[0]}</th>
+      <td>${s[2]}</td>
+      <td>${s[3].toLocaleString('en-US')}</td>
+      <td>${s[4].toLocaleString('en-US')}</td>
+      <td>${s[5]}</td>
+    </tr>`).join('');
+  document.querySelector('#source-clips').textContent = rows.reduce((a, s) => a + s[3], 0).toLocaleString('en-US');
+  document.querySelector('#source-frames').textContent = rows.reduce((a, s) => a + s[4], 0).toLocaleString('en-US');
+  document.querySelector('#source-total-label').textContent = filter === 'all' ? 'Total' : filter + ' total';
+}
+document.querySelector('#source-filter').addEventListener('change', renderSources);
+renderSources();
 // Reported values from Table IV, in [AJ, APD, OA] order. No synthetic scores.
 const benchmark={
 '3D':{
 'SurgT':[['SurgTAP-3D',91.78,94.82,99.23],['BootsTAPIR',87.81,91.77,99.08],['CoTrackerv3',90.17,93.99,98.84],['TAPNext',91.53,94.61,99.26],['DELTAv2',85.20,89.14,95.90],['SpatialTrackerv2',88.03,91.93,99.21]],
 'SurgPose':[['SurgTAP-3D',44.16,56.71,96.13],['BootsTAPIR',30.28,40.47,91.30],['CoTrackerv3',35.51,47.26,84.22],['TAPNext',42.64,53.43,96.08],['DELTAv2',38.03,48.53,80.81],['SpatialTrackerv2',30.88,41.97,85.76]],
 'STIR':[['SurgTAP-3D',33.79,42.77,97.05],['BootsTAPIR',27.18,34.60,98.29],['CoTrackerv3',28.16,34.76,98.21],['TAPNext',32.89,40.59,96.95],['DELTAv2',31.14,39.05,87.97],['SpatialTrackerv2',33.45,42.55,92.94]],
-'Average':[['SurgTAP-3D',56.57,64.65,97.47],['BootsTAPIR',48.42,55.61,96.22],['CoTrackerv3',51.28,58.67,93.76],['TAPNext',55.69,62.88,97.43],['DELTAv2',51.45,58.91,88.23],['SpatialTrackerv2',50.78,58.82,92.64]]},
+'Average':[['SurgTAP-3D',56.57,64.77,97.47],['BootsTAPIR',48.42,55.61,96.22],['CoTrackerv3',51.28,58.67,93.76],['TAPNext',55.69,62.88,97.43],['DELTAv2',51.45,58.91,88.23],['SpatialTrackerv2',50.78,58.82,92.64]]},
 '2D':{
 'SurgT':[['SurgTAP-3D',77.68,81.43,98.63],['BootsTAPIR',67.85,73.42,99.10],['CoTrackerv3',73.32,79.02,98.75],['TAPNext',74.98,80.52,98.18],['DELTAv2',73.75,79.21,96.03],['SpatialTrackerv2',66.66,71.62,98.89]],
 'SurgPose':[['SurgTAP-3D',60.78,70.12,96.77],['BootsTAPIR',47.28,57.79,91.65],['CoTrackerv3',49.40,61.84,83.89],['TAPNext',60.35,69.78,96.40],['DELTAv2',51.20,61.97,77.43],['SpatialTrackerv2',42.58,61.41,81.13]],
@@ -20,7 +49,9 @@ const benchmark={
 let dimension='3D';function renderBenchmark(){const dataset=document.querySelector('#benchmark-dataset').value;document.querySelector('#results').innerHTML=benchmark[dimension][dataset].map(row=>`<tr class="${row[0]==='SurgTAP-3D'?'ours':''}"><td>${row[0]}${row[0]==='SurgTAP-3D'?'<span>Ours</span>':''}</td>${row.slice(1).map(n=>`<td>${n.toFixed(2)}</td>`).join('')}</tr>`).join('');document.querySelector('#aj-label').textContent=`AJ ${dimension} ↑`;document.querySelector('#apd-label').textContent=`APD ${dimension} ↑`;document.querySelector('#benchmark-caption').textContent=`${dimension} tracking · ${dataset==='Average'?'Average across SurgT, SurgPose, and STIR':dataset}`;document.querySelectorAll('[data-dimension]').forEach(b=>{const selected=b.dataset.dimension===dimension;b.classList.toggle('active',selected);b.setAttribute('aria-pressed',selected)})}document.querySelectorAll('[data-dimension]').forEach(b=>b.addEventListener('click',()=>{dimension=b.dataset.dimension;renderBenchmark()}));document.querySelector('#benchmark-dataset').addEventListener('change',renderBenchmark);renderBenchmark();
 const dialog=document.querySelector('#image-dialog');document.querySelectorAll('[data-image]').forEach(b=>b.addEventListener('click',()=>{document.querySelector('#expanded-image').src=b.dataset.image;document.querySelector('#expanded-image').alt=b.querySelector('img').alt;dialog.showModal()}));document.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
 
-const projectVideo=document.querySelector('#project-video video');document.querySelectorAll('[data-seek]').forEach(b=>b.addEventListener('click',()=>{const seek=()=>{projectVideo.currentTime=Number(b.dataset.seek);projectVideo.play().catch(()=>{});projectVideo.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})};if(projectVideo.readyState>=1)seek();else{projectVideo.addEventListener('loadedmetadata',seek,{once:true});projectVideo.load()}}));
+const projectVideo=document.querySelector('#applications-player');
+// Start the current application clip at 0:02 once its metadata is available.
+projectVideo.addEventListener('loadedmetadata', () => { projectVideo.currentTime = 2; }, { once: true });
+document.querySelectorAll('[data-seek]').forEach(b=>b.addEventListener('click',()=>{const seek=()=>{projectVideo.currentTime=Number(b.dataset.seek);projectVideo.play().catch(()=>{});projectVideo.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})};if(projectVideo.readyState>=1)seek();else{projectVideo.addEventListener('loadedmetadata',seek,{once:true});projectVideo.load()}}));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)document.querySelectorAll('video').forEach(v=>v.pause())});
 
-document.querySelectorAll('a[href="#project-video"]').forEach(a=>a.addEventListener('click',()=>{const details=document.querySelector('#project-video details');if(details)details.open=true}));
