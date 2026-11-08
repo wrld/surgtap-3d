@@ -9,7 +9,7 @@
     <meta property="og:title" content="SurgTAP-3D">
     <meta property="og:description" content="From surgical video to contact-aware 4D trajectories.">
     <meta property="og:image" content="assets/latest-teaser.png">
-    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="styles.css">
     <style>
       .button.resource-button {
@@ -71,6 +71,40 @@
           grid-template-columns: 1fr;
           gap: 18px;
           padding: 20px;
+        }
+      }
+
+      .hero-title-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        margin: 12px 0 16px;
+      }
+
+      .hero-title-row > img {
+        width: 100px;
+        max-width: 100%;
+        height: auto;
+        justify-self: end;
+      }
+
+      .hero .hero-title-row h1 {
+        margin: 0;
+      }
+
+      @media (max-width: 650px) {
+        .hero .hero-title-row h1 {
+          font-size: clamp(26px, 6.4vw, 42px);
+          letter-spacing: -2px;
+        }
+
+        .hero-title-row > img {
+          width: 48px;
+        }
+
+        .hero-title-row {
+          gap: 6px;
         }
       }
 
@@ -148,7 +182,7 @@
 
     <!-- Module: Site header and primary navigation -->
     <header class="header">
-      <a class="brand" href="#"><svg viewbox="0 0 32 32" aria-hidden="true"><path d="M4 24 11 7l10 17 7-17M4 24h17M11 7h17"></path><circle cx="4" cy="24" r="2"></circle><circle cx="11" cy="7" r="2"></circle><circle cx="21" cy="24" r="2"></circle><circle cx="28" cy="7" r="2"></circle></svg>SurgTAP<span>-3D</span></a>
+      <a class="brand" href="#"><img src="assets/icon.png" alt="" width="36" height="36">SurgTAP<span>-3D</span></a>
       <nav aria-label="Main navigation">
         <a href="#dataset">Dataset</a>
         <a href="#method">Method</a>
@@ -168,7 +202,10 @@
             <span class="dot"></span>
             SURGICAL TRACKING ANY POINT IN 3D
           </div>
-          <h1 id="hero-title">SurgTAP<span>-3D</span></h1>
+          <div class="hero-title-row">
+            <img src="assets/icon.png" alt="" width="180" height="180">
+            <h1 id="hero-title">SurgTAP<span>-3D</span></h1>
+          </div>
           <p class="hero-title">A Large-Scale Cross-Surgery Video Dataset<br>with Contact-Aware 3D Motion Tracking</p>
           <p class="hero-venue">Accepted to IEEE Transactions on Robotics (T-RO)</p>
           <p class="hero-authors">
